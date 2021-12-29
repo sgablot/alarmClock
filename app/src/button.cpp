@@ -8,6 +8,7 @@
 #include "button.h"
 
 #include <avr/sfr_defs.h>
+#include "timer.h"
 
 /************************************************************************/
 /*                             PUSH BUTTON                              */
@@ -35,7 +36,11 @@ void Button::init()
 //Read the state of the button after a debounce system
 void Button::refresh()
 {
-	//TODO Add debounce system with timer
+	//Debounce system with timer
+	if(getDebounceTimer() >= debounceDelay)
+		resetDebounceTimer();
+	else
+		return;
 	
 	//Read the state of button after invertion (pullup)
 	stateButton = bit_is_clear(*pinAddr, pinNo);

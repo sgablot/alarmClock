@@ -11,18 +11,20 @@
 
 #include "pins.h"
 #include "button.h"
+#include "timer.h"
 
 //Test with led pin 13 arduino
 #define LED_INIT()	DDRB |= (1 << DDB5)
 #define LED_ON()	PORTB |= (1 << PORTB5)
 #define LED_OFF()	PORTB &= ~(1 << PORTB5)
 
-Toggle button_set = Toggle(BUTTON_STATE_ADDR, 200);
+Toggle button_set = Toggle(BUTTON_SET_ADDR, 5);
 
 int main(void)
 {	
 	button_set.init();
 	LED_INIT();
+	timer_init();
 	
 	while (1)
 	{

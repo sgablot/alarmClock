@@ -190,10 +190,16 @@
     <Compile Include="include\pins.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\timer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\button.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\timer.cpp">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
