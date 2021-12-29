@@ -14,11 +14,11 @@
 #include <stdint.h>
 
 //Init TIMER0_8bit for 1ms
-void timer_init();
+void timer_init(void);
 
 //Getter for debounce_timer
-uint16_t getDebounceTimer();
+uint16_t getDebounceTimer(void);
 //debounce_timer go back to 0
-void resetDebounceTimer();
+void resetDebounceTimer(void);
 
 #endif /* TIMER_H_ */

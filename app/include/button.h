@@ -10,37 +10,42 @@
 #define BUTTON_H_
 
 #include <avr/io.h>
+#include "pins.h"
 
 /************************************************************************/
 /*                             PUSH BUTTON                              */
 /************************************************************************/
 
-//TODO Add when button is pressed and when is released function
 class Button
 {
 public:
-	//Constructor for the button: register address, pin number and the delay to avoid the rebound
-	Button(volatile uint8_t* ddAddr, volatile uint8_t* portAddr, volatile uint8_t* pinAddr, uint8_t pinNo, uint16_t debounceDelay);
+	//Constructor for the button: register address and pin number
+	Button(volatile uint8_t* ddAddr, volatile uint8_t* portAddr, volatile uint8_t* pinAddr, uint8_t pinNo);
 	
 	//Initilize register for pullup input
-	void init();
-	//Read the state of the button after a debounce system
-	void refresh();
+	void init(void);
+	//Read the state of the button
+	void refresh(void);
 	
 	//Getter for stateButton
-	uint8_t getStateButton();
+	uint8_t getStateButton(void);
+	
+	//Return 1 when state of button go LOW to HIGH
+	uint8_t isPressed(void);
+	//Return 1 when state of button go HIGH to LOW
+	uint8_t isReleased(void);
+	
 protected:
 	//The value of pin for push up button (one when the button is pressed)
 	uint8_t stateButton;
+	//The old state of button
+	uint8_t lastState;
 
 	//Register of pin
 	volatile uint8_t* ddAddr;
 	volatile uint8_t* portAddr;
 	volatile uint8_t* pinAddr;
 	uint8_t pinNo;
-
-	//The delay to avoid the rebound
-	uint16_t debounceDelay;
 };
 
 
@@ -56,14 +61,39 @@ public:
 	using Button::Button;
 	
 	//Check if button is pressed when it was not
-	void refresh();
+	void refresh(void);
 	
 	//Getter for toggleValue
-	uint8_t getToggleValue();
+	uint8_t getToggleValue(void);
+	
 private:
 	//The value of toggle button
 	uint8_t toggleValue;
 };
+
+
+
+/************************************************************************/
+/*                          BUTTON DECLARATION                          */
+/************************************************************************/
+
+extern Button button_plus;
+extern Button button_less;
+extern Toggle button_state;
+extern Button button_stop;
+extern Button button_set;
+
+
+
+/************************************************************************/
+/*                        BUTTON GLOBAL FUNCTION                        */
+/************************************************************************/
+
+//Function for initialize all buttons
+void button_init(void);
+
+//Function for refresh all buttons with debounce system
+void button_refresh(void);
 
 
 

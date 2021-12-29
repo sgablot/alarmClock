@@ -18,18 +18,17 @@
 #define LED_ON()	PORTB |= (1 << PORTB5)
 #define LED_OFF()	PORTB &= ~(1 << PORTB5)
 
-Toggle button_set = Toggle(BUTTON_SET_ADDR, 5);
-
 int main(void)
 {	
-	button_set.init();
-	LED_INIT();
+	button_init();
 	timer_init();
+
+	LED_INIT();
 	
 	while (1)
 	{
-		button_set.refresh();
-		if(button_set.getToggleValue())
+		button_refresh();
+		if(button_state.getToggleValue())
 		{
 			LED_ON();
 		}

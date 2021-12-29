@@ -17,7 +17,7 @@ ISR(TIMER0_OVF_vect)
 }
 
 //Init TIMER0_8bit for 1ms
-void timer_init()
+void timer_init(void)
 {
 	//Enable Fast PWM for Timer
 	TCCR0A |= (1 << WGM01) | (1 << WGM00);
@@ -38,12 +38,12 @@ void timer_init()
 
 
 //Getter for debounce_timer
-uint16_t getDebounceTimer()
+uint16_t getDebounceTimer(void)
 {
 	return debounce_timer;
 }
 //debounce_timer go back to 0
-void resetDebounceTimer()
+void resetDebounceTimer(void)
 {
 	debounce_timer = 0;
 }
