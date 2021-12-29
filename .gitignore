@@ -1,0 +1,5 @@
+#Atmel Studio Files
+**/.vs/
+**/Debug/
+**/Release/
+*.componentinfo.xml
