@@ -21,4 +21,7 @@ uint16_t getDebounceTimer(void);
 //debounce_timer go back to 0
 void resetDebounceTimer(void);
 
+//Getter for display_timer
+uint16_t getDisplayTimer(void);
+
 #endif /* TIMER_H_ */

@@ -187,6 +187,9 @@
     <Compile Include="include\button.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\display.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\pins.h">
       <SubType>compile</SubType>
     </Compile>
@@ -197,6 +200,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\button.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\display.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\timer.cpp">

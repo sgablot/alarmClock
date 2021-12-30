@@ -8,12 +8,19 @@
 #include "timer.h"
 
 static uint16_t debounce_timer = 0;
+static uint16_t display_timer = 0;	//MAX 1000ms cycle
 
 //When the timer overflow
 ISR(TIMER0_OVF_vect)
 {
 	//Add 1 every 1ms
 	debounce_timer++;
+	
+	display_timer++;
+	if(display_timer >= 1000)
+	{
+		display_timer = 0;
+	}
 }
 
 //Init TIMER0_8bit for 1ms
@@ -46,5 +53,12 @@ uint16_t getDebounceTimer(void)
 void resetDebounceTimer(void)
 {
 	debounce_timer = 0;
+}
+
+
+//Getter for display_timer
+uint16_t getDisplayTimer(void)
+{
+	return display_timer;
 }
 

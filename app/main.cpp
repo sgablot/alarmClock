@@ -12,6 +12,7 @@
 #include "pins.h"
 #include "button.h"
 #include "timer.h"
+#include "display.h"
 
 //Test with led pin 13 arduino
 #define LED_INIT()	DDRB |= (1 << DDB5)
@@ -22,6 +23,7 @@ int main(void)
 {	
 	button_init();
 	timer_init();
+	display_init();
 
 	LED_INIT();
 	
@@ -36,6 +38,9 @@ int main(void)
 		{
 			LED_OFF();
 		}
+		
+		display_classicDisplay();
+		display_refresh();
 	}
 }
 
