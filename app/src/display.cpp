@@ -7,6 +7,9 @@
 
 #include "display.h"
 
+//for abs() function
+#include <stdlib.h>
+
 #define LATCH_LOW()		SET_PIN_LOW(LATCH_PIN);
 #define LATCH_HIGH()	SET_PIN_HIGH(LATCH_PIN);
 
@@ -16,15 +19,13 @@
 #define DATA_LOW()		SET_PIN_LOW(DATA_PIN);
 #define DATA_HIGH()		SET_PIN_HIGH(DATA_PIN);
 
+#define DISPLAY_NOTHING	0x00
+#define DISPLAY_MINUS	0x02
+#define DISPLAY_DEGREE	0xC6
 
-static void printClock();
-static void printAlarm();
-static void printTemperature();
-
-static void printDigit(volatile uint8_t* portAddr, uint8_t pinNo, uint8_t segment);
 
 /************************************************************************/
-/*                            LOCAL VARIABLE                            */
+/*                 LOCAL VARIABLE & FUNCTION DEFINITION                 */
 /************************************************************************/
 
 //Struct for stock the value of each digit and colon
@@ -41,6 +42,15 @@ Digits digits = {0, 0, 0, 0, 0};
 
 //Array for encode number into segment to display
 char encode[10] = {0xFC, 0x60, 0xDA, 0xF2, 0x66, 0xB6, 0xBE, 0xE0, 0xFE, 0xF6};
+
+
+//LOCAL FUNCTION DEFINITION
+static void printClock(uint8_t hours, uint8_t minutes);
+static void printAlarm(uint8_t hours, uint8_t minutes);
+static void printNothing();
+static void printTemperature(int8_t temperature);
+
+static void printDigit(volatile uint8_t* portAddr, uint8_t pinNo, uint8_t segment);
 
 
 
@@ -76,10 +86,7 @@ void display_classicDisplay(void)
 	}
 	
 	//TEST
-	digits.digit0 = encode[1];
-	digits.digit1 = encode[2];
-	digits.digit2 = encode[4];
-	digits.digit3 = encode[5];
+	printTemperature(-15);
 }
 
 
@@ -98,15 +105,95 @@ void display_refresh(void)
 /*                           PRIVATE FUNCTION                           */
 /************************************************************************/
 
-static void printClock();
-static void printAlarm();
-static void printTemperature();
+//Convert hours and minutes into digits to be display
+static void printClock(uint8_t hours, uint8_t minutes)
+{
+	//Get the ten of hours
+	if(hours >= 10)
+	{
+		digits.digit0 = encode[hours / 10];
+	}
+	else
+	{
+		//If the ten of hours == 0 then display nothing
+		digits.digit0 = DISPLAY_NOTHING;
+	}
+	
+	//Get the units of the hours
+	digits.digit1 = encode[hours % 10];
+	
 
+	//Get the ten of minutes
+	digits.digit2 = encode[minutes / 10];
+	//Get the units of mintues
+	digits.digit3 = encode[minutes % 10];
+
+	//Display the colon separator
+	digits.colon = true;
+}
+
+//Same thing than display clock but add a dot on second to last digit
+static void printAlarm(uint8_t hours, uint8_t minutes)
+{
+	printClock(hours, minutes);
+	
+	//Add a dot on second to last digits
+	digits.digit2 |= 1;
+}
+
+//Display nothing on all digits
+static void printNothing()
+{
+	digits.digit0 = DISPLAY_NOTHING;
+	digits.digit1 = DISPLAY_NOTHING;
+	digits.digit2 = DISPLAY_NOTHING;
+	digits.digit3 = DISPLAY_NOTHING;
+	digits.colon = false;
+}
+
+//Convert a temperature into digits to be display with sign minus or not and with degree sign
+static void printTemperature(int8_t temperature)
+{
+	//Variable for stock if temperature is negative
+	uint8_t neg = false;
+	
+	//For save the negative and get absolute temperature for the rest processes
+	if(temperature < 0)
+	{
+		neg = true;
+		temperature = abs(temperature);
+	}
+	else
+	{
+		digits.digit0 = DISPLAY_NOTHING;
+	}
+	
+	if(temperature >= 10)
+	{
+		//If temperature is negative, display the minus sign else display nothing
+		digits.digit0 = (neg == 1) ? DISPLAY_MINUS : DISPLAY_NOTHING;
+		//Get and encode the ten of temperature
+		digits.digit1 = encode[temperature / 10];
+	}
+	else
+	{
+		//Dipslay minus sign on second digit if temperature is negative and contain no ten
+		digits.digit1 = (neg==1) ? DISPLAY_MINUS : DISPLAY_NOTHING;
+	}
+	
+	//Get and encode the units of temperature
+	digits.digit2 = encode[temperature % 10];
+	//Display the ° symbol
+	digits.digit3 = DISPLAY_DEGREE;
+	
+	//Disable the colon sperator
+	digits.colon = false;
+}
+
+
+//Display digitX
 static void printDigit(volatile uint8_t* portAddr, uint8_t pinNo, uint8_t segment)
 {
-	//Turn off DIGITx
-	*portAddr &= ~(1 << pinNo);
-	
 	//8Bit Shifter
 	
 	LATCH_LOW();
