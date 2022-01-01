@@ -8,11 +8,14 @@
 #include "RTC.h"
 
 #include "TWI.h"
+#include "display.h"
+#include <avr/interrupt.h>
 
 #define DS1307_ADDR	0b1101000
 
-//TODO add error management
-
+//When an error occured in the Two Wire Interface then display ERROR on screen and disable the interrupt script
+inline void ERROR_MANAGEMENT(uint8_t a)	{ if(a) while(1) { cli(); display_showError(); display_refresh(); } }
+	
 //For all instruction view the Table 2. Timekeeper Registers
 
 /************************************************************************/
@@ -31,10 +34,10 @@ void RTC_init()
 void RTC_startClock()
 {
 	//cf. Figure 4. Data Write - Slave Receiver Mode
-	TWI_start(DS1307_ADDR, WRITE);
-	TWI_send(0x00);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
+	ERROR_MANAGEMENT(TWI_send(0x00));
 	//Define the second to 0 with the CH bit to 0
-	TWI_send(0x00);
+	ERROR_MANAGEMENT(TWI_send(0x00));
 	TWI_stop();
 }
 
@@ -42,10 +45,10 @@ void RTC_startClock()
 void RTC_stopClock()
 {
 	//cf. Figure 4. Data Write - Slave Receiver Mode
-	TWI_start(DS1307_ADDR, WRITE);
-	TWI_send(0x00);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
+	ERROR_MANAGEMENT(TWI_send(0x00));
 	//Set the CH bit to 1
-	TWI_send(0x80);
+	ERROR_MANAGEMENT(TWI_send(0x80));
 	TWI_stop();
 }
 
@@ -56,14 +59,18 @@ DateTime RTC_getClock(void)
 {
 	//cf. Figure 6. Data Read (Write Pointer, Then Read) - Slave Receive and Transmit | DS1307_datasheet
 	DateTime time;
-	TWI_start(DS1307_ADDR, WRITE);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
 	//The address of clock
-	TWI_send(0x00);
-	TWI_start(DS1307_ADDR, READ);
-	time.seconds = bcd_to_int(TWI_receive_ACK());
-	time.minutes = bcd_to_int(TWI_receive_ACK());
-	time.hours = bcd_to_int(TWI_receive_NACK());
+	ERROR_MANAGEMENT(TWI_send(0x00));
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, READ));
+	ERROR_MANAGEMENT(TWI_receive_ACK(&time.seconds));
+	time.seconds = bcd_to_int(time.seconds);
+	ERROR_MANAGEMENT(TWI_receive_ACK(&time.minutes));
+	time.minutes = bcd_to_int(time.minutes);
+	ERROR_MANAGEMENT(TWI_receive_NACK(&time.hours));
+	time.hours = bcd_to_int(time.hours);
 	TWI_stop();
+	
 	return time;
 }
 
@@ -72,14 +79,17 @@ DateTime RTC_getAlarm(void)
 {
 	//cf. Figure 6. Data Read (Write Pointer, Then Read) - Slave Receive and Transmit | DS1307_datasheet
 	DateTime time;
-	TWI_start(DS1307_ADDR, WRITE);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
 	//The address of alarm
-	TWI_send(0x0A);
-	TWI_start(DS1307_ADDR, READ);
-	time.minutes = bcd_to_int(TWI_receive_ACK() & 0x7F);
-	time.hours = bcd_to_int(TWI_receive_NACK());
+	ERROR_MANAGEMENT(TWI_send(0x0A));
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, READ));
+	ERROR_MANAGEMENT(TWI_receive_ACK(&time.minutes));
+	time.minutes = bcd_to_int(time.minutes & 0x7F);
+	ERROR_MANAGEMENT(TWI_receive_NACK(&time.hours));
+	time.hours = bcd_to_int(time.hours);
 	TWI_stop();
-	return time;	
+	
+	return time;
 }
 
 
@@ -88,12 +98,12 @@ DateTime RTC_getAlarm(void)
 void RTC_setClock(DateTime time)
 {
 	//cf. Figure 4. Data Write - Slave Receiver Mode
-	TWI_start(DS1307_ADDR, WRITE);
-	TWI_send(0x00);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
+	ERROR_MANAGEMENT(TWI_send(0x00));
 	//For set the CH bit in addr 0x00 for stop the clock
-	TWI_send(int_to_bcd(time.seconds) | 0x80);
-	TWI_send(int_to_bcd(time.minutes));
-	TWI_send(int_to_bcd(time.hours));
+	ERROR_MANAGEMENT(TWI_send(int_to_bcd(time.seconds) | 0x80));
+	ERROR_MANAGEMENT(TWI_send(int_to_bcd(time.minutes)));
+	ERROR_MANAGEMENT(TWI_send(int_to_bcd(time.hours)));
 	TWI_stop();
 }
 
@@ -101,11 +111,11 @@ void RTC_setClock(DateTime time)
 void RTC_setAlarm(DateTime time)
 {
 	//cf. Figure 4. Data Write - Slave Receiver Mode
-	TWI_start(DS1307_ADDR, WRITE);
-	TWI_send(0x0A);
+	ERROR_MANAGEMENT(TWI_start(DS1307_ADDR, WRITE));
+	ERROR_MANAGEMENT(TWI_send(0x0A));
 	//For set the SET bit in addr 0x0A (Bit7)
-	TWI_send(int_to_bcd(time.minutes) | 0x80);
-	TWI_send(int_to_bcd(time.hours));
+	ERROR_MANAGEMENT(TWI_send(int_to_bcd(time.minutes) | 0x80));
+	ERROR_MANAGEMENT(TWI_send(int_to_bcd(time.hours)));
 	TWI_stop();
 }
 

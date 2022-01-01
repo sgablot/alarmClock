@@ -27,8 +27,8 @@ void TWI_stop(void);
 uint8_t TWI_send(uint8_t data);
 
 //Receive data and respond with an ACK
-uint8_t TWI_receive_ACK(void);
+uint8_t TWI_receive_ACK(uint8_t *data);
 //Receive data and respond with an NACK
-uint8_t TWI_receive_NACK(void);
+uint8_t TWI_receive_NACK(uint8_t *data);
 
 #endif /* TWI_H_ */

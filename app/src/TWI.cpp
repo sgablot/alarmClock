@@ -5,8 +5,6 @@
  *  Author: Sylvain
  */ 
 
-//TODO modify the error return 
-
 #include "TWI.h"
 
 #include <util/twi.h>
@@ -53,7 +51,7 @@ uint8_t TWI_start(uint8_t addr, uint8_t w_r)
 	
 	//Check ACKNOWLEDGE
 	//If the status register is diffrent from what is expected
-	if((TWSR & 0xF8) != TW_MT_SLA_ACK)
+	if((TWSR & 0xF8) != TW_MT_SLA_ACK && (TWSR & 0xF8) != TW_MR_SLA_ACK)
 	{
 		//Return an error
 		return 1;
@@ -65,6 +63,7 @@ uint8_t TWI_start(uint8_t addr, uint8_t w_r)
 //Send a STOP condition
 void TWI_stop(void)
 {
+	//Configure the control register for send a STOP condition
 	TWCR = (1 << TWINT) | (1 << TWSTO) | (1 << TWEN);
 }
 
@@ -96,7 +95,7 @@ uint8_t TWI_send(uint8_t data)
 
 
 //Receive data and respond with an ACK
-uint8_t TWI_receive_ACK(void)
+uint8_t TWI_receive_ACK(uint8_t *data)
 {
 	//Configure the control register for a reception with a ACK
 	TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
@@ -106,14 +105,17 @@ uint8_t TWI_receive_ACK(void)
 	
 	if((TWSR & 0xF8) != TW_MR_DATA_ACK)
 	{
+		//Return an error
 		return 1;
 	}
 	
-	return TWDR;
+	*data = TWDR;
+	
+	return 0;
 }
 
 //Receive data and respond with an NACK
-uint8_t TWI_receive_NACK(void)
+uint8_t TWI_receive_NACK(uint8_t *data)
 {
 	//Configure the control register for a reception with NACK
 	TWCR = (1 << TWINT) | (1 << TWEN);
@@ -128,5 +130,7 @@ uint8_t TWI_receive_NACK(void)
 		return 1;
 	}
 	
-	return TWDR;
+	*data = TWDR;
+
+	return 0;
 }
