@@ -11,6 +11,7 @@
 
 #include <time.h>
 
+//Create a struct for stock the value of hours, minutes and second all at once
 typedef struct 
 {
 	uint8_t hours = 0;
@@ -33,6 +34,12 @@ inline bool operator==(const DateTime &a, const DateTime &b)
 void RTC_init();
 
 
+//Start the clock
+void RTC_startClock();
+//Stop the clock
+void RTC_stopClock();
+
+
 //Get the clock of RTC
 DateTime RTC_getClock(void);
 //Get the alarm of RTC
@@ -45,6 +52,12 @@ void RTC_setClock(DateTime time);
 void RTC_setAlarm(DateTime time);
 
 
+//Add a minute to clock or alarm
+void RTC_addMinute(uint8_t whichClock);
+//Substract a minute to clock or alarm
+void RTC_substractMinute(uint8_t whichClock);
+
+
 //Check if the clock equal to alarm
 uint8_t RTC_clockEqualAlarm(void);
 
@@ -55,9 +68,9 @@ uint8_t RTC_clockEqualAlarm(void);
 /************************************************************************/
 
 //Convert a BCD number into a int number
-static uint8_t bcd_to_int(uint8_t data);
+static uint8_t bcd_to_int(uint8_t data) { return ((data >> 4) * 10) + (data & 0x0F); }
 //Convert a int number into a BCD number
-static uint8_t int_to_bcd(uint8_t data);
+static uint8_t int_to_bcd(uint8_t data) { return ((data / 10) << 4) | (data % 10); }
 
 
 #endif /* RTC_H_ */

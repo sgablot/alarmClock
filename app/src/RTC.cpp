@@ -13,6 +13,8 @@
 
 //TODO add error management
 
+//For all instruction view the Table 2. Timekeeper Registers
+
 /************************************************************************/
 /*                           PUBLIC FUNCTION                            */
 /************************************************************************/
@@ -22,6 +24,31 @@ void RTC_init()
 {
 	TWI_init();
 }
+
+
+
+//Start the clock
+void RTC_startClock()
+{
+	//cf. Figure 4. Data Write - Slave Receiver Mode
+	TWI_start(DS1307_ADDR, WRITE);
+	TWI_send(0x00);
+	//Define the second to 0 with the CH bit to 0
+	TWI_send(0x00);
+	TWI_stop();
+}
+
+//Stop the clock
+void RTC_stopClock()
+{
+	//cf. Figure 4. Data Write - Slave Receiver Mode
+	TWI_start(DS1307_ADDR, WRITE);
+	TWI_send(0x00);
+	//Set the CH bit to 1
+	TWI_send(0x80);
+	TWI_stop();
+}
+
 
 
 //Get the clock of RTC
@@ -56,6 +83,7 @@ DateTime RTC_getAlarm(void)
 }
 
 
+
 //Set the clock of RTC
 void RTC_setClock(DateTime time)
 {
@@ -82,6 +110,63 @@ void RTC_setAlarm(DateTime time)
 }
 
 
+
+//Add a minute to clock or alarm
+void RTC_addMinute(uint8_t whichClock)
+{
+	//If whichClock equal 1 then get the value of clock else get the value of alarm
+	DateTime time = whichClock ? RTC_getClock() : RTC_getAlarm();
+	
+	if(time.minutes + 1 >= 60)
+	{
+		if(time.hours + 1 >= 24)
+		{
+			time.hours = 0;
+		}
+		else
+		{
+			time.hours++;
+		}
+		time.minutes = 0;
+	}
+	else
+	{
+		time.minutes++;
+	}
+	
+	//If whichClock equal 1 then set the clock with the new value else set the alarm with the new value
+	whichClock ? RTC_setClock(time) : RTC_setAlarm(time);
+}
+
+//Substract a minute to clock or alarm
+void RTC_substractMinute(uint8_t whichClock)
+{
+	//If whichClock equal 1 then get the value of clock else get the value of alarm
+	DateTime time = whichClock ? RTC_getClock() : RTC_getAlarm();
+	
+	if(time.minutes - 1 <= 0)
+	{
+		if(time.hours - 1 <= 0)
+		{
+			time.hours  = 23;
+		}
+		else
+		{
+			time.hours--;
+		}
+		time.minutes = 59;
+	}
+	else
+	{
+		time.minutes--;
+	}
+	
+	//If whichClock equal 1 then set the clock with the new value else set the alarm with the new value
+	whichClock ? RTC_setClock(time) : RTC_setAlarm(time);
+}
+
+
+
 //Check if the clock equal to alarm
 uint8_t RTC_clockEqualAlarm(void)
 {
@@ -89,14 +174,3 @@ uint8_t RTC_clockEqualAlarm(void)
 	if(RTC_getAlarm() == RTC_getClock())	return 1;
 	return 0;
 }
-
-
-
-/************************************************************************/
-/*                           PRIVATE FUNCTION                           */
-/************************************************************************/
-
-//Convert a BCD number into a int number
-static uint8_t bcd_to_int(uint8_t data) { return ((data >> 4) * 10) + (data & 0x0F); }
-//Convert a int number into a BCD number
-static uint8_t int_to_bcd(uint8_t data) { return ((data / 10) << 4) | (data % 10); }

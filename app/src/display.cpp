@@ -25,7 +25,14 @@
 #define DISPLAY_MINUS	0x02
 #define DISPLAY_DEGREE	0xC6
 
+#define DISPLAY_E		0x9E
+#define DISPLAY_R		0x0A
+#define DISPLAY_O		0x3A
+
+
 #define DS1307_ADDR		0b1101000
+
+#define BLINKING_DELAY	750
 
 /************************************************************************/
 /*                 LOCAL VARIABLE & FUNCTION DEFINITION                 */
@@ -76,26 +83,65 @@ void display_init(void)
 }
 
 
+
 //Show clock during 50s and show temperature during 10s
 void display_classicDisplay(void)
 {
-	if(/*seconde du DS1307 >= 50*/1)
+	DateTime time = RTC_getClock();
+	
+	if(time.seconds >= 50)
 	{
-		//Afficher la temperature
+		printTemperature(15);
 	}
 	else
 	{
-		//Afficher l'heure
+		printClock(time.hours, time.minutes);
 	}
 	
-	//TEST
-	
-	DateTime time = RTC_getClock();
-	
-	printClock(time.minutes, time.seconds);
-	
-	//printTemperature(-15);
 }
+
+//Show clock with blinking
+void display_showClockWBlinking(void)
+{
+	//Print nothing during 1000 - BLINKING_DELAY
+	if(getDisplayTimer() >= BLINKING_DELAY)
+	{
+		printNothing();
+	}
+	else
+	{
+		//Print clock during BLINK_DELAY
+		DateTime time = RTC_getClock();
+		printClock(time.hours, time.minutes);
+	}
+}
+
+//Show alarm clock with blinking
+void display_showAlarmWBlinking(void)
+{
+	//Print nothing during 1000 - BLINKING_DELAY
+	if(getDisplayTimer() >= BLINKING_DELAY)
+	{
+		printNothing();
+	}
+	else
+	{
+		//Print alarm during BLINK_DELAY
+		DateTime time = RTC_getAlarm();
+		printClock(time.hours, time.minutes);
+	}
+}
+
+//Show ERROR
+void display_showError(void)
+{
+	digits.digit0 = DISPLAY_E;
+	digits.digit1 = DISPLAY_R;
+	digits.digit2 = DISPLAY_O;
+	digits.digit3 = DISPLAY_R;
+	digits.colon = false;
+}
+
 
 
 //Refresh the display
@@ -105,6 +151,8 @@ void display_refresh(void)
 	printDigit(GET_PORT(SECOND_DIGIT_PIN), GET_PIN(SECOND_DIGIT_PIN), digits.digit1);
 	printDigit(GET_PORT(THIRD_DIGIT_PIN), GET_PIN(THIRD_DIGIT_PIN), digits.digit2);
 	printDigit(GET_PORT(FOURTH_DIGIT_PIN), GET_PIN(FOURTH_DIGIT_PIN), digits.digit3);
+	
+	//TODO add colon led
 }
 
 

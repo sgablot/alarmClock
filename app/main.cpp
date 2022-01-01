@@ -43,7 +43,9 @@ int main(void)
 		}
 		
 		
-		display_classicDisplay();
+		//display_classicDisplay();
+		//display_showClockWBlinking();
+		display_showError();
 		display_refresh();
 	}
 }
