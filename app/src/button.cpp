@@ -116,7 +116,7 @@ void button_init(void)
 }
 
 //Function for refresh all buttons with debounce system
-void button_refresh(void)
+void buttons_refresh(void)
 {
 	//Read the debounce timer and refresh all button every 1ms
 	if(getDebounceTimer() >= 1)

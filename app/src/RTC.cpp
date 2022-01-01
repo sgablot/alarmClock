@@ -76,7 +76,7 @@ DateTime RTC_getAlarm(void)
 	//The address of alarm
 	TWI_send(0x0A);
 	TWI_start(DS1307_ADDR, READ);
-	time.minutes = bcd_to_int(TWI_receive_ACK());
+	time.minutes = bcd_to_int(TWI_receive_ACK() & 0x7F);
 	time.hours = bcd_to_int(TWI_receive_NACK());
 	TWI_stop();
 	return time;	

@@ -93,7 +93,7 @@ extern Button button_set;
 void button_init(void);
 
 //Function for refresh all buttons with debounce system
-void button_refresh(void);
+void buttons_refresh(void);
 
 
 

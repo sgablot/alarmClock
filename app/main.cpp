@@ -14,6 +14,7 @@
 #include "timer.h"
 #include "display.h"
 #include "TWI.h"
+#include "RTC.h"
 
 //Test with led pin 13 arduino
 #define LED_INIT()	DDRB |= (1 << DDB5)
@@ -32,20 +33,51 @@ int main(void)
 	
 	while (1)
 	{
-		button_refresh();
-		if(button_state.getToggleValue())
+		buttons_refresh();
+		
+		if(button_set.isPressed())
 		{
-			LED_ON();
+			RTC_stopClock();
+		}
+		else if(button_set.isReleased())
+		{
+			RTC_startClock();
+		}
+		
+		if(button_set.getStateButton() && button_state.getStateButton())
+		{
+			display_showError();
+		}
+		else if(button_set.getStateButton())
+		{
+			if(button_plus.getStateButton())
+			{
+				RTC_addMinute(1);
+			}
+			else if(button_less.getStateButton())
+			{
+				RTC_substractMinute(1);
+			}
+			display_showClockWBlinking();
+		}
+		else if(button_state.getStateButton())
+		{
+			if(button_plus.getStateButton())
+			{
+				RTC_addMinute(0);
+			}
+			else if(button_less.getStateButton())
+			{
+				RTC_substractMinute(0);
+			}
+			display_showAlarmWBlinking();
 		}
 		else
 		{
-			LED_OFF();
+			display_classicDisplay();
 		}
 		
 		
-		//display_classicDisplay();
-		//display_showClockWBlinking();
-		display_showError();
 		display_refresh();
 	}
 }
