@@ -9,6 +9,8 @@
 
 //for abs() function
 #include <stdlib.h>
+#include "TWI.h"
+#include "RTC.h"
 
 #define LATCH_LOW()		SET_PIN_LOW(LATCH_PIN);
 #define LATCH_HIGH()	SET_PIN_HIGH(LATCH_PIN);
@@ -23,6 +25,7 @@
 #define DISPLAY_MINUS	0x02
 #define DISPLAY_DEGREE	0xC6
 
+#define DS1307_ADDR		0b1101000
 
 /************************************************************************/
 /*                 LOCAL VARIABLE & FUNCTION DEFINITION                 */
@@ -86,7 +89,12 @@ void display_classicDisplay(void)
 	}
 	
 	//TEST
-	printTemperature(-15);
+	
+	DateTime time = RTC_getClock();
+	
+	printClock(time.minutes, time.seconds);
+	
+	//printTemperature(-15);
 }
 
 

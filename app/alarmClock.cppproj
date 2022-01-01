@@ -193,7 +193,13 @@
     <Compile Include="include\pins.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="include\RTC.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="include\timer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="include\TWI.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.cpp">
@@ -205,7 +211,13 @@
     <Compile Include="src\display.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\RTC.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\timer.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\TWI.cpp">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
